@@ -8,23 +8,16 @@ import { NextResponse, type NextRequest } from 'next/server'
  * 3. Allows /liff for everyone (customer auth is handled by cookies internally).
  */
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
-  
-  // Create a response to modify
   let response = NextResponse.next({
     request: {
       headers: request.headers,
     },
   })
 
-  // Create Supabase Middleware Client to check Auth State
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-     console.error('Missing Supabase Environment Variables in Middleware')
-     return response
-  }
+  if (!supabaseUrl || !supabaseAnonKey) return response
 
   const supabase = createServerClient(
     supabaseUrl,
@@ -49,23 +42,14 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // 1. Get user session
   const { data: { user } } = await supabase.auth.getUser()
 
-  // 2. Control Access
-  
-  // If user is NOT logged in and trying to access /agent, redirect to /login
-  if (!user && pathname.startsWith('/agent')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
+  if (!user && request.nextUrl.pathname.startsWith('/agent')) {
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // If user IS logged in and trying to go to /login, redirect back to /agent
-  if (user && pathname.startsWith('/login')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/agent'
-    return NextResponse.redirect(url)
+  if (user && request.nextUrl.pathname.startsWith('/login')) {
+    return NextResponse.redirect(new URL('/agent', request.url))
   }
 
   return response
