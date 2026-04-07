@@ -1,0 +1,267 @@
+﻿"Title","Labels","Milestone","Body"
+"[Round 1] Initialize Next.js MVP scaffold","round-1,frontend,setup,qa","MVP-2day","## เป้าหมาย
+ตั้งต้นโปรเจกต์ให้รันได้ก่อน ด้วยโครง Next.js App Router + TypeScript + โฟลเดอร์หลักสำหรับ MVP support system
+
+## งานที่ต้องทำ
+- [ ] สร้างโปรเจกต์ Next.js แบบ App Router
+- [ ] ตั้งค่า TypeScript
+- [ ] สร้างโฟลเดอร์ src/app, src/components/customer, src/components/agent, src/lib, src/types, supabase/migrations
+- [ ] ติดตั้ง dependencies หลัก: @supabase/supabase-js, zod, jose
+- [ ] ตั้ง scripts: dev, build, start, lint
+- [ ] สร้างหน้า default ให้แอปรันได้
+- [ ] เพิ่ม README placeholder
+
+## Acceptance Criteria
+- [ ] npm install ผ่าน
+- [ ] npm run dev ผ่าน
+- [ ] เปิดหน้าเว็บ local ได้
+- [ ] ไม่มี business logic เกินจำเป็นในรอบนี้
+
+## หมายเหตุ
+เน้นโครงเรียบง่าย ห้าม overengineer"
+"[Round 2] Create Supabase database schema","round-2,db,backend,qa","MVP-2day","## เป้าหมาย
+สร้างฐานข้อมูลหลักสำหรับระบบ ticket support
+
+## งานที่ต้องทำ
+- [ ] สร้างไฟล์ supabase/migrations/001_init.sql
+- [ ] สร้าง enums: ticket_status, ticket_priority, sender_type
+- [ ] สร้างตาราง hospitals, customer_users, agent_users, tickets, ticket_messages, ticket_events, canned_replies
+- [ ] เพิ่ม foreign keys ให้ถูกต้อง
+- [ ] เพิ่ม created_at
+- [ ] เพิ่ม updated_at ในตารางที่แก้ไขได้
+- [ ] เพิ่ม indexes สำหรับ queue tickets, customer ticket list, message timeline
+- [ ] เพิ่ม trigger อัปเดต updated_at
+
+## Acceptance Criteria
+- [ ] รัน migration ผ่าน
+- [ ] เห็นทุก table ใน Supabase
+- [ ] ไม่มี syntax error
+- [ ] tickets เชื่อม customer / hospital / agent ได้
+- [ ] ticket_messages และ ticket_events ใช้งานได้จริง
+
+## หมายเหตุ
+ยังไม่ต้องใส่ RLS ซับซ้อนในรอบนี้"
+"[Round 3] Add seed data and environment template","round-3,db,setup,qa","MVP-2day","## เป้าหมาย
+เพิ่มข้อมูลตั้งต้นและตัวอย่าง env เพื่อให้เริ่มทดสอบได้เร็ว
+
+## งานที่ต้องทำ
+- [ ] สร้าง supabase/seed.sql
+- [ ] เพิ่ม sample hospitals อย่างน้อย 5 แห่ง
+- [ ] เพิ่ม canned replies ภาษาไทยอย่างน้อย 5 รายการ
+- [ ] สร้าง .env.example
+- [ ] ใส่ environment variables: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, LINE_CHANNEL_SECRET, LINE_CHANNEL_ACCESS_TOKEN, NEXT_PUBLIC_LIFF_ID, CUSTOMER_SESSION_SECRET, NEXT_PUBLIC_APP_URL
+- [ ] ใส่ comment อธิบายแต่ละตัวแปรแบบสั้น
+
+## Acceptance Criteria
+- [ ] รัน seed ผ่าน
+- [ ] query hospitals ได้
+- [ ] query canned_replies ได้
+- [ ] ไม่มี secret private ตัวไหนถูกตั้งเป็น NEXT_PUBLIC_ ผิด
+
+## หมายเหตุ
+ห้าม seed auth.users ปลอม"
+"[Round 4] Add shared Supabase clients and base utilities","round-4,backend,frontend,qa","MVP-2day","## เป้าหมาย
+สร้าง utility กลางสำหรับเชื่อม Supabase ทั้งฝั่ง server และ browser
+
+## งานที่ต้องทำ
+- [ ] สร้าง src/lib/supabase-server.ts
+- [ ] export createServerSupabaseClient() และ createServiceRoleSupabaseClient()
+- [ ] สร้าง src/lib/supabase-browser.ts
+- [ ] export createBrowserSupabaseClient()
+- [ ] อ่าน env แบบปลอดภัย
+- [ ] ถ้า env ไม่ครบให้ throw error ชัดเจน
+- [ ] แยก boundary server/browser ให้ถูก
+- [ ] เพิ่ม src/lib/utils.ts ถ้าจำเป็นจริงเท่านั้น
+
+## Acceptance Criteria
+- [ ] server client ใช้ใน route handler ได้
+- [ ] browser client import ใน client component ได้
+- [ ] service role ไม่รั่วไปฝั่ง client
+- [ ] compile ผ่าน
+
+## หมายเหตุ
+ห้ามสร้าง abstraction เยอะเกิน MVP"
+"[Round 5] Implement LINE helpers and customer session cookie","round-5,line,liff,auth,backend,qa","MVP-2day","## เป้าหมาย
+เตรียมระบบสำหรับ verify LINE webhook และออก customer session จาก LIFF
+
+## งานที่ต้องทำ
+- [ ] สร้าง src/lib/line.ts
+- [ ] implement verifyLineSignature(rawBody, signature, channelSecret)
+- [ ] implement buildReplyMessage(text)
+- [ ] implement getLiffEntryUrl()
+- [ ] ใช้ HMAC-SHA256 สำหรับ verify signature
+- [ ] สร้าง src/lib/customer-session.ts
+- [ ] implement issueCustomerSession(...), readCustomerSession(...), clearCustomerSession(...)
+- [ ] ใช้ signed HTTP-only cookie
+- [ ] expiry 30 วัน
+- [ ] จำกัดให้ใช้ฝั่ง server only
+
+## Acceptance Criteria
+- [ ] signature verify ทำงานถูกต้อง
+- [ ] session cookie เป็น HTTP-only
+- [ ] อ่าน session ได้ใน route handler
+- [ ] clear session ได้
+- [ ] ไม่มี secret usage ฝั่ง client
+
+## หมายเหตุ
+รอบนี้ยังไม่ต้องทำ webhook route จริง"
+"[Round 6] Build LIFF bootstrap API and customer registration flow","round-6,liff,customer,backend,frontend,qa","MVP-2day","## เป้าหมาย
+ให้ลูกค้าเปิด LIFF แล้วลงทะเบียนเข้าระบบ support ได้
+
+## งานที่ต้องทำ
+- [ ] สร้าง src/app/api/liff/bootstrap/route.ts
+- [ ] รับ input: lineUserId, displayName, hospitalCode, fullName, phone, department
+- [ ] validate ด้วย zod
+- [ ] หา hospital จาก hospitalCode
+- [ ] upsert customer_users จาก lineUserId
+- [ ] issue customer session cookie
+- [ ] สร้าง src/components/customer/RegisterForm.tsx
+- [ ] สร้าง src/app/liff/page.tsx
+- [ ] หน้า LIFF แสดง registration form เมื่อยังไม่ register
+- [ ] หลังลงทะเบียนสำเร็จ แสดง welcome state
+
+## Acceptance Criteria
+- [ ] hospital code ไม่ถูกต้องแล้วได้ 400
+- [ ] customer_users ถูกสร้าง/อัปเดต
+- [ ] session cookie ถูก set
+- [ ] หน้า LIFF ใช้งานบนมือถือได้
+- [ ] submit form มี loading/error state
+
+## หมายเหตุ
+ยังไม่ต้องทำ dashboard ลูกค้าเต็มรูปแบบ"
+"[Round 7] Implement customer ticket creation and ticket list","round-7,customer,backend,frontend,qa","MVP-2day","## เป้าหมาย
+ให้ลูกค้าสร้าง ticket ใหม่และเห็นรายการงานของตัวเอง
+
+## งานที่ต้องทำ
+- [ ] สร้าง src/app/api/customer/tickets/route.ts
+- [ ] GET ดึง tickets ของ customer ปัจจุบัน
+- [ ] POST สร้าง ticket ใหม่
+- [ ] POST ต้อง insert tickets, initial ticket_messages, ticket_events event=ticket_created
+- [ ] ใช้ customer session cookie เป็นแหล่ง identity เดียว
+- [ ] validate request ด้วย zod
+- [ ] สร้าง src/components/customer/NewTicketForm.tsx
+- [ ] สร้าง src/components/customer/TicketList.tsx
+- [ ] ปรับ src/app/liff/page.tsx ให้แสดงปุ่มแจ้งปัญหาใหม่และรายการ tickets ล่าสุด
+
+## Acceptance Criteria
+- [ ] POST สร้าง ticket ได้จริง
+- [ ] message แรกถูกสร้างพร้อม ticket
+- [ ] event ticket_created ถูกสร้าง
+- [ ] GET เห็นเฉพาะ ticket ของ customer ปัจจุบัน
+- [ ] สร้างเสร็จแล้ว redirect ไปหน้า ticket detail ได้
+
+## หมายเหตุ
+ห้ามเชื่อ input ฝั่ง client เรื่อง hospital/user ownership"
+"[Round 8] Build customer ticket detail page and message thread","round-8,customer,backend,frontend,qa","MVP-2day","## เป้าหมาย
+ให้ลูกค้าคุยต่อใน ticket เดิมได้จากหน้า LIFF
+
+## งานที่ต้องทำ
+- [ ] สร้าง src/app/api/customer/tickets/[id]/messages/route.ts
+- [ ] GET ticket detail + messages
+- [ ] POST เพิ่มข้อความจากลูกค้า
+- [ ] เช็ก ownership ว่า ticket เป็นของ customer คนนี้จริง
+- [ ] update tickets.last_message_at
+- [ ] reject POST ถ้า ticket เป็น resolved หรือ closed
+- [ ] สร้าง src/components/customer/TicketThread.tsx
+- [ ] สร้าง src/app/liff/tickets/new/page.tsx
+- [ ] สร้าง src/app/liff/tickets/[id]/page.tsx
+- [ ] ใช้ polling ทุก 5 วินาทีสำหรับ refresh thread
+- [ ] แสดง not found / forbidden แบบสุภาพ
+
+## Acceptance Criteria
+- [ ] ticket ไม่ใช่ของตัวเองแล้วได้ 403
+- [ ] resolved/closed แล้วส่งข้อความไม่ได้
+- [ ] thread render ครบ
+- [ ] polling ทำงาน
+- [ ] last_message_at เปลี่ยนเมื่อมีข้อความใหม่
+
+## หมายเหตุ
+attachment ใช้ placeholder UI ก่อนก็ได้ ถ้ายังไม่พร้อม"
+"[Round 9] Add agent login and protect agent routes","round-9,agent,auth,backend,qa","MVP-2day","## เป้าหมาย
+แยกฝั่งเจ้าหน้าที่ออกจากลูกค้า และป้องกันเส้นทาง /agent
+
+## งานที่ต้องทำ
+- [ ] สร้าง src/app/login/page.tsx
+- [ ] ใช้ Supabase Auth สำหรับ login เจ้าหน้าที่
+- [ ] ใช้ email magic link หรือ email login แบบง่าย
+- [ ] แสดง loading / success / error state
+- [ ] สร้าง middleware.ts
+- [ ] ป้องกัน /agent
+- [ ] อนุญาต /login
+- [ ] อนุญาต /liff
+- [ ] redirect ผู้ใช้ที่ยังไม่ login จาก /agent ไป /login
+
+## Acceptance Criteria
+- [ ] ยังไม่ login เข้า /agent แล้วโดน redirect
+- [ ] login สำเร็จแล้วเข้า /agent ได้
+- [ ] /liff ยังใช้งานปกติ
+- [ ] middleware ไม่บล็อก route อื่นผิดพลาด
+
+## หมายเหตุ
+ยังไม่ต้องทำ role system ซับซ้อน beyond agent/admin"
+"[Round 10] Create agent dashboard UI and queue view","round-10,agent,frontend,qa","MVP-2day","## เป้าหมาย
+ให้เจ้าหน้าที่เห็นคิวงานทั้งหมดและเปิดดู ticket ได้จากหน้าเดียว
+
+## งานที่ต้องทำ
+- [ ] สร้าง src/app/agent/page.tsx
+- [ ] render queue tickets แบบ server-side initial load
+- [ ] เพิ่ม filters: status, hospital, search
+- [ ] แสดง count ต่อ status
+- [ ] สร้าง src/components/agent/AgentQueue.tsx
+- [ ] สร้าง src/components/agent/AgentTicketPanel.tsx
+- [ ] layout: ซ้าย=filters กลาง=queue ขวา=detail panel
+- [ ] ใช้ label ภาษาไทย
+
+## Acceptance Criteria
+- [ ] queue render ticket ได้
+- [ ] filters มี UI ครบ
+- [ ] click/select ticket ได้
+- [ ] detail panel แสดงข้อมูลหลักของ ticket ได้
+- [ ] layout ใช้งานได้จริงบน desktop
+
+## หมายเหตุ
+message timeline ใน panel จะเป็น placeholder ก่อนได้ ถ้าต้องรีบ"
+"[Round 11] Implement agent ticket actions","round-11,agent,backend,qa","MVP-2day","## เป้าหมาย
+ให้เจ้าหน้าที่รับงาน เปลี่ยนสถานะ และตอบกลับลูกค้าได้
+
+## งานที่ต้องทำ
+- [ ] สร้าง src/app/api/agent/tickets/[id]/assign/route.ts
+- [ ] สร้าง src/app/api/agent/tickets/[id]/status/route.ts
+- [ ] สร้าง src/app/api/agent/tickets/[id]/reply/route.ts
+- [ ] ทุก route ต้องเช็ก authenticated agent
+- [ ] assign: set assigned_agent_id, ถ้า status=open ให้เปลี่ยนเป็น assigned, insert event assigned
+- [ ] status: อนุญาต assigned/pending_customer/resolved/closed, set resolved_at เมื่อ resolve ครั้งแรก, insert event status_changed
+- [ ] reply: insert ticket_messages sender=agent, update last_message_at, set first_response_at ครั้งแรก, ถ้า ticket open ให้เปลี่ยนเป็น assigned, insert event agent_replied
+- [ ] wire UI ใน AgentTicketPanel.tsx
+
+## Acceptance Criteria
+- [ ] assign ทำงานจริง
+- [ ] status update ทำงานจริง
+- [ ] reply ทำงานจริง
+- [ ] events ถูกสร้างครบ
+- [ ] customer refresh แล้วเห็น agent message
+- [ ] unauthenticated user เรียก route ไม่ได้
+
+## หมายเหตุ
+ต้องรักษาความสอดคล้อง tickets/messages/events ให้ครบทุก action"
+"[Round 12] Final hardening, documentation, and deployment readiness","round-12,deploy,qa,docs,backend,frontend","MVP-2day","## เป้าหมาย
+เก็บงาน MVP ให้พร้อม deploy และส่งต่อให้ใช้งานจริงระดับเริ่มต้น
+
+## งานที่ต้องทำ
+- [ ] เขียน/อัปเดต README.md
+- [ ] README ต้องมี product overview, architecture, local setup, Supabase setup, LINE OA / LIFF setup, env vars, run locally, deploy to Vercel, known limitations, next phase improvements
+- [ ] ตรวจ codebase ทั้งหมด
+- [ ] patch practical issues: missing validation, missing null checks, broken redirects, weak loading states, weak empty states, obvious security mistakes
+- [ ] เพิ่ม src/types/db.ts ถ้าจำเป็น
+- [ ] ทดสอบ end-to-end local
+- [ ] ทดสอบ deploy บน Vercel
+
+## Acceptance Criteria
+- [ ] npm run build ผ่าน
+- [ ] local flow ครบ
+- [ ] deploy production ได้
+- [ ] README ครบและอ่านแล้ว setup ได้
+- [ ] มี list ข้อจำกัดของ MVP ชัดเจน
+
+## หมายเหตุ
+ห้าม refactor ใหญ่ในรอบนี้ เน้นทำให้จบและปล่อยได้"
