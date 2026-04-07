@@ -1,6 +1,9 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
+import { ImageEditorModal } from './ImageEditorModal'
+import { TicketPrintView } from './TicketPrintView'
+import { useReactToPrint } from 'react-to-print'
 
 type Message = {
   id: string
@@ -47,9 +50,22 @@ export const AgentTicketPanel: React.FC<Props> = ({ ticketId, onActionSuccess })
   const [replyText, setReplyText] = useState('')
   const [sending, setSending] = useState(false)
   const [attachment, setAttachment] = useState<File | null>(null)
+  const [imageToEdit, setImageToEdit] = useState<{ url: string, name: string } | null>(null)
   const [isInternalMode, setIsInternalMode] = useState(false)
+  const [cannedReplies, setCannedReplies] = useState<any[]>([])
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const printRef = useRef<HTMLDivElement>(null)
+
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `NeoSupport_Ticket_${ticket?.ticket_number || 'Export'}`
+  })
+
+  useEffect(() => {
+    fetch('/api/agent/canned').then(res => res.json()).then(data => setCannedReplies(data || []))
+  }, [])
 
   const fetchTicketDetail = async (silent = false) => {
     if (!ticketId) return
@@ -180,9 +196,13 @@ export const AgentTicketPanel: React.FC<Props> = ({ ticketId, onActionSuccess })
           </div>
         </div>
         
-        {/* Rapid Status Actions */}
-        <div className="flex gap-2">
-           {['assigned', 'pending_customer', 'resolved'].map((s) => (
+        {/* Rapid Status Actions & Export */}
+        <div className="flex flex-col items-end gap-2 text-right">
+           <button onClick={() => handlePrint()} className="text-[9px] font-black uppercase bg-gray-900 text-white hover:bg-black px-3 py-1.5 rounded-lg tracking-widest shadow-sm flex items-center gap-1">
+             <span>📄</span> PDF
+           </button>
+           <div className="flex gap-2">
+              {['assigned', 'pending_customer', 'resolved'].map((s) => (
              <button
                 key={s}
                 onClick={() => handleAction('status', { status: s })}
@@ -195,6 +215,7 @@ export const AgentTicketPanel: React.FC<Props> = ({ ticketId, onActionSuccess })
                {s.replace('_', ' ')}
              </button>
            ))}
+           </div>
         </div>
       </div>
 
@@ -221,9 +242,18 @@ export const AgentTicketPanel: React.FC<Props> = ({ ticketId, onActionSuccess })
                     }`}>
                       <p className="text-sm font-medium leading-relaxed whitespace-pre-wrap">{msg.message_body}</p>
                       {msg.metadata?.attachments?.map((file, i) => (
-                         <div key={i} className="mt-3">
+                         <div key={i} className="mt-3 relative group/img w-fit block">
                            {file.type.startsWith('image/') ? (
-                             <img src={file.url} alt={file.name} className="max-w-full rounded-lg max-h-64 object-cover border border-black/10" />
+                             <>
+                               <img src={file.url} alt={file.name} className="max-w-full rounded-lg max-h-64 object-cover border border-black/10" />
+                               <button 
+                                 title="แก้ไขหรือวงภาพ"
+                                 onClick={() => setImageToEdit({ url: file.url, name: file.name })} 
+                                 className="absolute top-2 right-2 bg-gray-900 border border-gray-700 text-white px-3 py-1.5 rounded-lg opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center gap-2 hover:bg-black font-bold text-[10px] uppercase tracking-widest shadow-xl"
+                               >
+                                  <span className="text-sm">✏️</span> EDIT IMAGE
+                               </button>
+                             </>
                            ) : (
                              <a href={file.url} target="_blank" rel="noreferrer" className={`flex items-center gap-2 p-2 rounded-lg text-xs transition border ${isAgent && !isInternal ? 'bg-white/10 border-white/20 hover:bg-white/20' : 'bg-black/5 border-black/10 hover:bg-black/10'}`}>
                                📄 <span className="underline truncate max-w-[200px]">{file.name}</span>
@@ -265,6 +295,22 @@ export const AgentTicketPanel: React.FC<Props> = ({ ticketId, onActionSuccess })
                      <span className="text-xs text-gray-700 truncate font-medium">📎 {attachment.name}</span>
                      <button type="button" onClick={() => setAttachment(null)} className="text-gray-500 hover:text-black text-xs font-bold px-2 py-1 bg-white rounded-md">✕</button>
                   </div>
+               )}
+               {/* Canned Replies Quick Pick */}
+               {cannedReplies.length > 0 && !isInternalMode && (
+                 <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none w-full">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest self-center shrink-0">⚡ QUICK:</span>
+                    {cannedReplies.map(r => (
+                       <button 
+                         key={r.id} 
+                         onClick={() => setReplyText(r.content)}
+                         className="text-[10px] font-bold bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg whitespace-nowrap shrink-0 transition-all border border-blue-100 shadow-sm block max-w-[150px] truncate"
+                         title={r.content}
+                       >
+                         {r.title}
+                       </button>
+                    ))}
+                 </div>
                )}
                <div className="flex gap-4">
                   <input 
@@ -328,6 +374,23 @@ export const AgentTicketPanel: React.FC<Props> = ({ ticketId, onActionSuccess })
                </div>
             </div>
          )}
+      </div>
+
+      {imageToEdit && (
+         <ImageEditorModal
+            imageUrl={imageToEdit.url}
+            fileName={imageToEdit.name}
+            onClose={() => setImageToEdit(null)}
+            onSave={(file) => {
+               setAttachment(file)
+               setImageToEdit(null)
+            }}
+         />
+      )}
+
+      {/* Hidden Print Content */}
+      <div className="hidden">
+         <TicketPrintView ref={printRef} ticket={ticket} />
       </div>
     </div>
   )

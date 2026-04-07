@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { AgentTicketPanel } from './AgentTicketPanel'
+import * as XLSX from 'xlsx'
 
 type TicketListItem = {
   id: string
@@ -65,6 +66,28 @@ export const AgentQueue: React.FC<Props> = ({ initialHospitals, initialCounts })
     closed: 'ปิดงาน',
   }
 
+  const handleExportExcel = () => {
+    if (tickets.length === 0) {
+       alert('ไม่มีข้อมูลสำหรับ Export')
+       return
+    }
+    const sheetData = tickets.map(t => ({
+      'หมายเลขงาน': t.ticket_number,
+      'หัวข้อ': t.title,
+      'หมวดหมู่': t.category,
+      'ความสำคัญ': t.priority,
+      'สถานะ': statusMap[t.status] || t.status,
+      'โรงพยาบาล': t.hospitals?.name,
+      'ผู้แจ้ง': t.customer_users?.full_name,
+      'เบอร์ติดต่อ': t.customer_users?.phone,
+      'วันที่เปิดงาน': new Date(t.created_at).toLocaleString('th-TH')
+    }))
+    const ws = XLSX.utils.json_to_sheet(sheetData)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, "Tickets_Report")
+    XLSX.writeFile(wb, `NeoSupport_Report_${new Date().toISOString().split('T')[0]}.xlsx`)
+  }
+
   return (
     <div className="flex flex-1 overflow-hidden">
       {/* Sidebar Filters (Column 1) */}
@@ -101,6 +124,16 @@ export const AgentQueue: React.FC<Props> = ({ initialHospitals, initialCounts })
               <option key={h.id} value={h.id}>{h.name}</option>
             ))}
           </select>
+        </div>
+
+        <div className="pt-8 border-t border-gray-200 mt-auto">
+           <button 
+             onClick={handleExportExcel}
+             className="w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
+           >
+             <span className="text-lg text-white">📊</span> EXCEL REPORT
+           </button>
+           <p className="text-[9px] text-gray-400 text-center mt-2 font-medium">Export {tickets.length} รายการปัจจุบัน</p>
         </div>
       </aside>
 

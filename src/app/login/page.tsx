@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
  * Uses Supabase Auth (Email/Password or Magic Link if configured).
  */
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -25,8 +25,11 @@ export default function LoginPage() {
     setMessage(null)
 
     try {
+      // Standardize username to email-like format for Supabase Auth (e.g. admin -> admin@admin.local)
+      const fakeEmail = `${username.trim().toLowerCase()}@admin.local`
+
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: fakeEmail,
         password,
       })
 
@@ -60,14 +63,14 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2 px-1">อีเมลเจ้าหน้าที่</label>
+            <label className="block text-sm font-bold text-gray-700 mb-2 px-1">Username (ชื่อผู้ใช้)</label>
             <input
               required
-              type="email"
+              type="text"
               className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:bg-white outline-none transition-all"
-              placeholder="agent@hospital.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin01"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
           </div>
 
