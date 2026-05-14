@@ -218,11 +218,9 @@ export const AgentTicketPanel: React.FC<Props> = ({ ticketId, onActionSuccess })
         <div className="flex items-center gap-3">
             <div className="flex flex-col items-end gap-2">
                 <div className="flex gap-2">
-                  <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="bg-white border-dashed border-gray-200 text-[9px] font-black uppercase tracking-widest hover:bg-gray-50 gap-2 h-8 px-3">
-                          <GitBranch className="w-3 h-3" /> TRANSFER <ChevronDown className="w-3 h-3 text-gray-400" />
-                        </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-white shadow-sm hover:bg-accent hover:text-accent-foreground border-dashed border-gray-200 text-[9px] font-black uppercase tracking-widest hover:bg-gray-50 gap-2 h-8 px-3 cursor-pointer">
+                        <GitBranch className="w-3 h-3" /> TRANSFER <ChevronDown className="w-3 h-3 text-gray-400" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-56">
                         <DropdownMenuLabel className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Assign to Team</DropdownMenuLabel>
@@ -371,9 +369,9 @@ export const AgentTicketPanel: React.FC<Props> = ({ ticketId, onActionSuccess })
                           <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between pointer-events-none">
                             <div className="flex items-center gap-1.5 pointer-events-auto">
                               <input type="file" className="hidden" ref={fileInputRef} onChange={(e) => setAttachment(e.target.files?.[0] || null)} />
-                              <TooltipProvider><Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} className="h-8 w-8 rounded-lg bg-white border border-border"><Paperclip className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>Attach (Max 5MB)</TooltipContent></Tooltip></TooltipProvider>
+                              <TooltipProvider><Tooltip><TooltipTrigger><Button variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} className="h-8 w-8 rounded-lg bg-white border border-border"><Paperclip className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>Attach (Max 5MB)</TooltipContent></Tooltip></TooltipProvider>
                               
-                              <TooltipProvider><Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={() => setIsInternalMode(!isInternalMode)} className={`h-8 w-8 rounded-lg border transition-all ${isInternalMode ? 'bg-amber-100 text-amber-600 border-amber-200' : 'bg-white border-border text-gray-400'}`}>{isInternalMode ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}</Button></TooltipTrigger><TooltipContent>{isInternalMode ? 'Internal Mode ON' : 'Customer Mode ON'}</TooltipContent></Tooltip></TooltipProvider>
+                              <TooltipProvider><Tooltip><TooltipTrigger><Button variant="ghost" size="icon" onClick={() => setIsInternalMode(!isInternalMode)} className={`h-8 w-8 rounded-lg border transition-all ${isInternalMode ? 'bg-amber-100 text-amber-600 border-amber-200' : 'bg-white border-border text-gray-400'}`}>{isInternalMode ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}</Button></TooltipTrigger><TooltipContent>{isInternalMode ? 'Internal Mode ON' : 'Customer Mode ON'}</TooltipContent></Tooltip></TooltipProvider>
                             </div>
                             <div className="flex items-center gap-2 pointer-events-auto">
                               <Button 
