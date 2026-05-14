@@ -11,6 +11,7 @@ type TicketListItem = {
   status: 'open' | 'assigned' | 'pending_customer' | 'resolved' | 'closed'
   priority: string
   category: string
+  assigned_team: string
   created_at: string
   hospitals: { name: string }
   customer_users: { full_name: string; phone: string }
@@ -32,6 +33,8 @@ export const AgentQueue: React.FC<Props> = ({ initialHospitals, initialCounts })
   const [searchTerm, setSearchTerm] = useState('')
   const [tickets, setTickets] = useState<TicketListItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isListOpen, setIsListOpen] = useState(true)
 
   const fetchTickets = async () => {
     setLoading(true)
@@ -89,9 +92,10 @@ export const AgentQueue: React.FC<Props> = ({ initialHospitals, initialCounts })
   }
 
   return (
-    <div className="flex flex-1 overflow-hidden">
+    <div className="flex flex-1 overflow-hidden relative">
       {/* Sidebar Filters (Column 1) */}
-      <aside className="w-64 bg-gray-50 border-r p-6 overflow-y-auto space-y-8 flex-shrink-0">
+      <aside className={`bg-gray-50 border-r p-6 overflow-y-auto space-y-8 flex-shrink-0 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-64' : 'w-0 p-0 border-0 opacity-0 overflow-hidden'}`}>
+        <div className={isSidebarOpen ? 'opacity-100' : 'opacity-0'}>
         <div>
           <h2 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 px-1">กรองตามสถานะ</h2>
           <div className="space-y-1">
@@ -138,8 +142,27 @@ export const AgentQueue: React.FC<Props> = ({ initialHospitals, initialCounts })
       </aside>
 
       {/* Ticket List (Column 2) */}
-      <section className="w-96 bg-white border-r flex flex-col flex-shrink-0">
-        <div className="p-4 border-b">
+      <section className={`bg-white border-r flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out relative ${isListOpen ? 'w-96' : 'w-0 border-0 opacity-0 overflow-hidden'}`}>
+        {/* Toggle Buttons Floating */}
+        <div className="absolute top-4 -right-4 z-50 flex flex-col gap-2">
+           <button 
+             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+             title={isSidebarOpen ? "ซ่อนตัวกรอง" : "แสดงตัวกรอง"}
+             className="w-8 h-8 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center text-xs hover:bg-gray-50 transition-all active:scale-95"
+           >
+             {isSidebarOpen ? '◀' : '▶'}
+           </button>
+           <button 
+             onClick={() => setIsListOpen(!isListOpen)}
+             title={isListOpen ? "ซ่อนรายการ" : "แสดงรายการ"}
+             className="w-8 h-8 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center text-xs hover:bg-gray-50 transition-all active:scale-95"
+           >
+             {isListOpen ? '📂' : '📋'}
+           </button>
+        </div>
+
+        <div className={`flex flex-col h-full ${isListOpen ? 'opacity-100' : 'opacity-0 transition-none'}`}>
+          <div className="p-4 border-b">
           <div className="relative group">
             <span className="absolute left-3 top-2.5 text-gray-400 group-focus-within:text-blue-500 transition-colors">🔍</span>
             <input 
@@ -167,7 +190,18 @@ export const AgentQueue: React.FC<Props> = ({ initialHospitals, initialCounts })
                 }`}
               >
                 <div className="flex justify-between items-start mb-1">
-                  <span className="text-[10px] font-black text-blue-500 bg-blue-100/50 px-2 py-0.5 rounded-md uppercase">#{ticket.ticket_number}</span>
+                  <div className="flex gap-1.5 items-center">
+                    <span className="text-[10px] font-black text-blue-500 bg-blue-100/50 px-2 py-0.5 rounded-md uppercase">#{ticket.ticket_number}</span>
+                    {ticket.assigned_team && ticket.assigned_team !== 'support' && (
+                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tighter ${
+                        ticket.assigned_team === 'programmer' ? 'bg-red-500 text-white' :
+                        ticket.assigned_team === 'sa' ? 'bg-indigo-500 text-white' :
+                        'bg-amber-500 text-white'
+                      }`}>
+                         {ticket.assigned_team === 'programmer' ? 'DEV' : ticket.assigned_team.toUpperCase()}
+                      </span>
+                    )}
+                  </div>
                   <span className="text-[10px] font-medium text-gray-400">{new Date(ticket.created_at).toLocaleDateString('th-TH')}</span>
                 </div>
                 <h3 className="text-sm font-black text-gray-800 line-clamp-1">{ticket.title}</h3>
@@ -181,6 +215,16 @@ export const AgentQueue: React.FC<Props> = ({ initialHospitals, initialCounts })
           )}
         </div>
       </section>
+
+      {/* Floating Toggle for fully collapsed state */}
+      {!isListOpen && (
+        <button 
+          onClick={() => setIsListOpen(true)}
+          className="absolute left-4 top-4 z-50 w-10 h-10 bg-blue-600 text-white rounded-full shadow-xl flex items-center justify-center hover:bg-blue-700 transition-all animate-bounce"
+        >
+          📋
+        </button>
+      )}
 
       {/* Ticket Panel (Column 3) */}
       <section className="flex-1 bg-white overflow-hidden shadow-2xl z-10">
