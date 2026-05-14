@@ -200,6 +200,7 @@ export const AgentQueue: React.FC<Props> = ({ initialHospitals, initialCounts })
             </div>
           )}
         </div>
+        </div>
       </section>
 
       {/* Floating Toggle for fully collapsed state */}
