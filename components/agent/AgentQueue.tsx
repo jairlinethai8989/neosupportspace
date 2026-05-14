@@ -143,6 +143,7 @@ export const AgentQueue: React.FC<Props> = ({ initialHospitals, initialCounts })
            </button>
            <p className="text-[9px] text-gray-400 text-center mt-2 font-medium">Export {tickets.length} รายการปัจจุบัน</p>
         </div>
+        </div>
       </aside>
 
       {/* Ticket List (Column 2) */}
