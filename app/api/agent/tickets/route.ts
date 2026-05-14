@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
   // 2. Build Query
   let query = supabase
     .from('tickets')
-    .select('*, hospitals(name), customer_users(full_name, phone)')
+    .select('*, hospitals(name), customer_users(full_name, phone), agent_users(display_name)')
     .order('last_message_at', { ascending: false })
 
   if (status && status !== 'all') {

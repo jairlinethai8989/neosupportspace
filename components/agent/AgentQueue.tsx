@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { AgentTicketPanel } from './AgentTicketPanel'
+import { TicketCard } from '../shared/TicketCard'
 import * as XLSX from 'xlsx'
 
 type TicketListItem = {
@@ -13,8 +14,11 @@ type TicketListItem = {
   category: string
   assigned_team: string
   created_at: string
+  resolved_at?: string | null
+  closed_at?: string | null
   hospitals: { name: string }
   customer_users: { full_name: string; phone: string }
+  agent_users?: { display_name: string } | null
 }
 
 type Props = {
@@ -175,43 +179,24 @@ export const AgentQueue: React.FC<Props> = ({ initialHospitals, initialCounts })
           </div>
         </div>
         
-        <div className="flex-1 overflow-y-auto bg-gray-50/30">
+        <div className="flex-1 overflow-y-auto bg-gray-50/30 pb-20">
           {loading ? (
-             <div className="p-10 text-center text-xs text-gray-400">กำลังดาวน์โหลดข้อมูลงาน...</div>
+             <div className="p-10 text-center text-xs text-gray-400 animate-pulse">กำลังดาวน์โหลดข้อมูลงาน...</div>
           ) : tickets.length === 0 ? (
-            <div className="p-10 text-center text-xs text-gray-400">ไม่พบรายการงานที่ตรงตามเงื่อนไข</div>
+            <div className="p-10 text-center">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100 text-xl shadow-sm">📂</div>
+              <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">ไม่พบรายการงาน</p>
+            </div>
           ) : (
-            tickets.map((ticket) => (
-              <button
-                key={ticket.id}
-                onClick={() => setSelectedTicketId(ticket.id)}
-                className={`w-full p-5 border-b text-left hover:bg-blue-50/50 transition-all ${
-                  selectedTicketId === ticket.id ? 'bg-blue-50/80 border-r-4 border-r-blue-600' : ''
-                }`}
-              >
-                <div className="flex justify-between items-start mb-1">
-                  <div className="flex gap-1.5 items-center">
-                    <span className="text-[10px] font-black text-blue-500 bg-blue-100/50 px-2 py-0.5 rounded-md uppercase">#{ticket.ticket_number}</span>
-                    {ticket.assigned_team && ticket.assigned_team !== 'support' && (
-                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tighter ${
-                        ticket.assigned_team === 'programmer' ? 'bg-red-500 text-white' :
-                        ticket.assigned_team === 'sa' ? 'bg-indigo-500 text-white' :
-                        'bg-amber-500 text-white'
-                      }`}>
-                         {ticket.assigned_team === 'programmer' ? 'DEV' : ticket.assigned_team.toUpperCase()}
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-[10px] font-medium text-gray-400">{new Date(ticket.created_at).toLocaleDateString('th-TH')}</span>
-                </div>
-                <h3 className="text-sm font-black text-gray-800 line-clamp-1">{ticket.title}</h3>
-                <p className="text-xs text-gray-400 font-medium truncate mt-0.5">{ticket.hospitals.name}</p>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-gray-500">{ticket.customer_users.full_name}</span>
-                  <div className={`w-2 h-2 rounded-full ${ticket.priority === 'high' || ticket.priority === 'urgent' ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`} />
-                </div>
-              </button>
-            ))
+            <div className="p-4 space-y-6">
+              {tickets.map((ticket) => (
+                <TicketCard 
+                  key={ticket.id}
+                  ticket={ticket} 
+                  onClick={() => setSelectedTicketId(ticket.id)} 
+                />
+              ))}
+            </div>
           )}
         </div>
       </section>
