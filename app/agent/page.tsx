@@ -23,7 +23,7 @@ export default async function AgentDashboard() {
     .from('tickets')
     .select('status')
   
-  const counts = (ticketsCount || []).reduce((acc: any, t) => {
+  const counts = (ticketsCount || []).reduce((acc: any, t: any) => {
     acc[t.status] = (acc[t.status] || 0) + 1
     acc['all'] = (acc['all'] || 0) + 1
     return acc
