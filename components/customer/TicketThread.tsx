@@ -287,7 +287,7 @@ export const TicketThread = ({ ticketId }: { ticketId: string }) => {
             <div className="text-center">
                <p className="text-gray-500 font-bold mb-2">Ticket ถูกปิดเรียบร้อยแล้ว</p>
                <div className="inline-flex gap-1 mb-2">
-                 {[1,2,3,4,5].map(star => (
+                 {[1,2,3,4,5].map((star: number) => (
                    <span key={star} className={`text-2xl ${star <= ticket.csat_score! ? 'text-yellow-400' : 'text-gray-200'}`}>★</span>
                  ))}
                </div>

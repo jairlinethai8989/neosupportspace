@@ -78,7 +78,7 @@ export const AgentQueue: React.FC<Props> = ({ initialHospitals, initialCounts })
        alert('ไม่มีข้อมูลสำหรับ Export')
        return
     }
-    const sheetData = tickets.map(t => ({
+    const sheetData = tickets.map((t: any) => ({
       'หมายเลขงาน': t.ticket_number,
       'หัวข้อ': t.title,
       'หมวดหมู่': t.category,

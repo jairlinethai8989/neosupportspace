@@ -395,7 +395,7 @@ export const AgentTicketPanel: React.FC<Props> = ({ ticketId, onActionSuccess })
                   </div>
                   {cannedReplies.length > 0 && !isInternalMode && (
                     <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none w-full">
-                        {cannedReplies.slice(0, 5).map(r => (
+                        {cannedReplies.slice(0, 5).map((r: any) => (
                           <button key={r.id} onClick={() => setReplyText(r.content)} className="text-[9px] font-bold bg-white text-gray-500 hover:text-blue-600 px-3 py-1.5 rounded-lg border border-border transition-all whitespace-nowrap">
                             {r.title}
                           </button>
@@ -449,7 +449,7 @@ export const AgentTicketPanel: React.FC<Props> = ({ ticketId, onActionSuccess })
                    <h3 className="text-[10px] font-black text-yellow-600 uppercase tracking-[0.2em] mb-4">Satisfaction Score</h3>
                    <div className="bg-yellow-50/50 border border-yellow-100 p-4 rounded-2xl">
                       <div className="flex items-center gap-1.5 mb-2">
-                         {[1,2,3,4,5].map(s => (
+                         {[1,2,3,4,5].map((s: number) => (
                            <span key={s} className={`text-lg ${s <= (ticket?.csat_score || 0) ? 'text-yellow-400' : 'text-gray-200'}`}>★</span>
                          ))}
                          <span className="ml-2 text-sm font-black text-yellow-700">{ticket.csat_score}/5</span>

@@ -102,7 +102,7 @@ export async function POST(
       .neq('id', agentUser.id)
 
     if (otherAgents && otherAgents.length > 0) {
-      const notifications = otherAgents.map(a => ({
+      const notifications = otherAgents.map((a: any) => ({
         agent_id: a.id,
         ticket_id: id,
         title: `โน้ตภายในใหม่จาก ${agentUser.display_name}`,

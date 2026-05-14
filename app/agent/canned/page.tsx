@@ -165,7 +165,7 @@ export default function CannedRepliesPage() {
             <h3 className="text-lg font-semibold px-1">Templates ({replies.length})</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-               {replies.map(r => {
+               {replies.map((r: any) => {
                  const isOwner = r.created_by === currentAgentId;
                  const canModify = isOwner || currentAgentRole === 'admin';
                  

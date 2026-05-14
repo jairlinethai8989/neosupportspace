@@ -61,12 +61,12 @@ export async function GET(request: NextRequest) {
   }
 
   // Format array for Recharts
-  const statusData = Object.keys(stats.status).map(k => ({ name: k.replace('_', ' ').toUpperCase(), value: stats.status[k] }))
-  const priorityData = Object.keys(stats.priority).map(k => ({ name: k.toUpperCase(), value: stats.priority[k] }))
-  const teamData = Object.keys(stats.team).map(k => ({ name: k.toUpperCase(), value: stats.team[k] }))
+  const statusData = Object.keys(stats.status).map((k: string) => ({ name: k.replace('_', ' ').toUpperCase(), value: (stats.status as any)[k] }))
+  const priorityData = Object.keys(stats.priority).map((k: string) => ({ name: k.toUpperCase(), value: (stats.priority as any)[k] }))
+  const teamData = Object.keys(stats.team).map((k: string) => ({ name: k.toUpperCase(), value: (stats.team as any)[k] }))
   
   // Sort timeline chronologically
-  const timelineData = Object.keys(stats.timeline).sort().map(k => ({ date: k, count: stats.timeline[k] }))
+  const timelineData = Object.keys(stats.timeline).sort().map((k: string) => ({ date: k, count: (stats.timeline as any)[k] }))
 
   return NextResponse.json({ statusData, priorityData, teamData, timelineData, csat: stats.csat })
 }

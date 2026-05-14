@@ -263,9 +263,9 @@ export function DraggableDashboard({ initialConfig }: { initialConfig: { layout:
       </div>
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={layout.map(i => i.id)} strategy={rectSortingStrategy}>
+        <SortableContext items={layout.map((i: any) => i.id)} strategy={rectSortingStrategy}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {layout.map(widget => (
+            {layout.map((widget: any) => (
               <SortableWidget key={widget.id} id={widget.id} widget={widget} data={data!} />
             ))}
           </div>

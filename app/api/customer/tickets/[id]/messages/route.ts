@@ -47,7 +47,7 @@ export async function GET(
   // Since newly added column defaults might not instantly propagate if not updated, let's filter safely:
   // Supabase postgREST doesn't inherently support coalesce in eq without views, 
   // so we'll do neq true to cover false and null just in case.
-  const safeMessages = messages?.filter(m => !m.is_internal) || []
+  const safeMessages = messages?.filter((m: any) => !m.is_internal) || []
 
   return NextResponse.json({ ticket, messages: safeMessages })
 }
