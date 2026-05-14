@@ -13,24 +13,37 @@ export async function GET(request: NextRequest) {
   // Fetch tickets for aggregation
   const { data: tickets, error } = await supabaseAdmin
     .from('tickets')
-    .select('status, priority, created_at, csat_score')
+    .select('status, priority, created_at, csat_score, assigned_team')
     .gte('created_at', dateLimit.toISOString())
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  const stats = {
-    status: {} as Record<string, number>,
-    priority: {} as Record<string, number>,
-    timeline: {} as Record<string, number>,
+  interface AggStats {
+    status: Record<string, number>
+    priority: Record<string, number>
+    team: Record<string, number>
+    timeline: Record<string, number>
+    csat: { total: number; count: number; average: number }
+  }
+
+  const stats: AggStats = {
+    status: {},
+    priority: {},
+    team: {},
+    timeline: {},
     csat: { total: 0, count: 0, average: 0 }
   }
 
-  tickets?.forEach(t => {
+  tickets?.forEach((t: { status: string; priority: string; created_at: string; csat_score: number | null; assigned_team: string | null }) => {
     // Status
     stats.status[t.status] = (stats.status[t.status] || 0) + 1
     
     // Priority
     stats.priority[t.priority] = (stats.priority[t.priority] || 0) + 1
+
+    // Team
+    const team = t.assigned_team || 'support'
+    stats.team[team] = (stats.team[team] || 0) + 1
 
     // Timeline
     const d = new Date(t.created_at).toLocaleDateString('en-CA') // YYYY-MM-DD
@@ -50,9 +63,10 @@ export async function GET(request: NextRequest) {
   // Format array for Recharts
   const statusData = Object.keys(stats.status).map(k => ({ name: k.replace('_', ' ').toUpperCase(), value: stats.status[k] }))
   const priorityData = Object.keys(stats.priority).map(k => ({ name: k.toUpperCase(), value: stats.priority[k] }))
+  const teamData = Object.keys(stats.team).map(k => ({ name: k.toUpperCase(), value: stats.team[k] }))
   
   // Sort timeline chronologically
   const timelineData = Object.keys(stats.timeline).sort().map(k => ({ date: k, count: stats.timeline[k] }))
 
-  return NextResponse.json({ statusData, priorityData, timelineData, csat: stats.csat })
+  return NextResponse.json({ statusData, priorityData, teamData, timelineData, csat: stats.csat })
 }

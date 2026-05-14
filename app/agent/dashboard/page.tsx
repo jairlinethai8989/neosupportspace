@@ -22,6 +22,7 @@ export default async function DashboardPage() {
       { id: "timeline", type: "line", title: "Ticket Volume Trend", colSpan: 2 },
       { id: "status", type: "pie", title: "Tickets by Status", colSpan: 1 },
       { id: "priority", type: "bar", title: "Priority Breakdown", colSpan: 1 },
+      { id: "team", type: "team", title: "Team Workload", colSpan: 1 },
       { id: "csat", type: "kpi", title: "Avg CSAT Score", colSpan: 1 }
     ]
   }
@@ -29,14 +30,14 @@ export default async function DashboardPage() {
   const config = agentData?.dashboard_config || defaultConfig
 
   return (
-    <div className="p-8 h-full flex flex-col bg-gray-50 overflow-hidden">
+    <div className="p-8 h-full flex flex-col overflow-hidden">
       <div className="flex items-center justify-between mb-6 flex-shrink-0">
          <div>
-            <h2 className="text-2xl font-black text-gray-900 tracking-tight">Analytics Dashboard</h2>
-            <p className="text-sm text-gray-500">ผลสรุปวิเคราะห์ข้อมูล (ลากเพื่อจัดเรียง)</p>
+            <h2 className="text-2xl font-semibold tracking-tight text-foreground">Analytics Dashboard</h2>
+            <p className="text-sm text-muted-foreground">ผลสรุปวิเคราะห์ข้อมูลย้อนหลัง (ลากเพื่อจัดเรียง Layout)</p>
          </div>
       </div>
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto pr-2">
          <DraggableDashboard initialConfig={config} />
       </div>
     </div>

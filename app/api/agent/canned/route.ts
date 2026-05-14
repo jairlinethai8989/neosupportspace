@@ -14,10 +14,21 @@ export async function GET(request: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const supabaseAdmin = createServiceRoleSupabaseClient()
-  const { data, error } = await supabaseAdmin.from('canned_replies').select('id, category, title, content, created_by').eq('is_active', true).order('created_at', { ascending: false })
+  
+  const { data: currentAgent } = await supabaseAdmin.from('agent_users').select('id, role').eq('auth_user_id', user.id).single()
+
+  const { data, error } = await supabaseAdmin
+    .from('canned_replies')
+    .select('id, category, title, content, created_by, author:agent_users!canned_replies_created_by_fkey(id, display_name, avatar_url)')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+  return NextResponse.json({
+    replies: data,
+    currentAgentId: currentAgent?.id,
+    currentAgentRole: currentAgent?.role
+  })
 }
 
 // POST a new canned reply (Agent can create)

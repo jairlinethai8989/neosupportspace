@@ -7,7 +7,7 @@ import { NextResponse, type NextRequest } from 'next/server'
  * 2. Allows /login for everyone.
  * 3. Allows /liff for everyone (customer auth is handled by cookies internally).
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   
   // Create a response to modify

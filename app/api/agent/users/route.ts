@@ -85,3 +85,45 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
+
+export async function PUT(request: NextRequest) {
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { getAll() { return cookieStore.getAll() } } }
+  )
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const supabaseAdmin = createServiceRoleSupabaseClient()
+  
+  // Verify Admin
+  const { data: adminCheck } = await supabaseAdmin.from('agent_users').select('role').eq('auth_user_id', user.id).single()
+  if (adminCheck?.role !== 'admin' && adminCheck?.role !== 'super_admin') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  const { id, is_active, role } = await request.json()
+  if (!id) {
+    return NextResponse.json({ error: 'Missing user ID' }, { status: 400 })
+  }
+
+  // Prevent modifying Super Admin unless you are one
+  const { data: targetUser } = await supabaseAdmin.from('agent_users').select('role').eq('id', id).single()
+  if (targetUser?.role === 'super_admin' && adminCheck?.role !== 'super_admin') {
+     return NextResponse.json({ error: 'Cannot modify Super Admin accounts' }, { status: 403 })
+  }
+
+  // Build update payload
+  const updatePayload: any = {}
+  if (is_active !== undefined) updatePayload.is_active = is_active
+  if (role !== undefined) updatePayload.role = role
+
+  const { error } = await supabaseAdmin.from('agent_users').update(updatePayload).eq('id', id)
+  
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
+

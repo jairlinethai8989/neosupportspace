@@ -48,6 +48,10 @@ export default async function AgentLayout({ children }: { children: React.ReactN
               <span className="text-xl">💬</span>
               <span className="text-[9px] font-bold uppercase tracking-widest leading-none">Replies</span>
             </Link>
+            <Link href="/agent/feedback" className="group flex flex-col items-center gap-1 p-3 rounded-2xl hover:bg-white/10 transition-all text-gray-400 hover:text-white">
+              <span className="text-xl">⭐</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest leading-none">CSAT</span>
+            </Link>
             {isAdmin && (
               <Link href="/agent/users" className="group flex flex-col items-center gap-1 p-3 rounded-2xl hover:bg-white/10 transition-all text-gray-400 hover:text-white">
                 <span className="text-xl">👥</span>

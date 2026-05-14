@@ -1,6 +1,9 @@
 'use client'
 
 import React, { useEffect, useState, useRef } from 'react'
+import { FileUploadPreview } from '../shared/FileUploadPreview'
+import { Paperclip, Send, Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 type Message = {
   id: string
@@ -217,15 +220,18 @@ export const TicketThread = ({ ticketId }: { ticketId: string }) => {
 
       {/* Message Input (Fixed at bottom) */}
       {!isClosed ? (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gray-50/80 backdrop-blur-md border-t border-gray-200">
-          <form onSubmit={handleSendMessage} className="max-w-screen-md mx-auto flex flex-col gap-2">
-            {attachment && (
-              <div className="flex items-center justify-between bg-blue-50 px-3 py-2 rounded-lg border border-blue-100">
-                <span className="text-xs text-blue-700 truncate max-w-[200px] font-medium">📎 {attachment.name}</span>
-                <button type="button" onClick={() => setAttachment(null)} className="text-blue-500 hover:text-blue-700 text-xs font-bold px-2 py-1 bg-blue-100 rounded-md">✕</button>
-              </div>
-            )}
-            <div className="flex gap-2">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-lg border-t border-gray-100 z-20">
+          <form onSubmit={handleSendMessage} className="max-w-screen-md mx-auto flex flex-col gap-3">
+            {/* Floating Preview */}
+            <div className="flex gap-2 items-center">
+               <FileUploadPreview 
+                  file={attachment} 
+                  onRemove={() => setAttachment(null)}
+                  loading={uploadProgress}
+               />
+            </div>
+
+            <div className="flex items-end gap-2 bg-gray-100/50 p-2 rounded-[2rem] border border-gray-100 focus-within:bg-white focus-within:border-blue-200 focus-within:ring-4 focus-within:ring-blue-50 transition-all duration-300">
               <input 
                 type="file" 
                 className="hidden" 
@@ -241,20 +247,22 @@ export const TicketThread = ({ ticketId }: { ticketId: string }) => {
                 }}
                 accept="image/jpeg,image/png,application/pdf"
               />
-              <button 
+              <Button 
                 type="button"
+                variant="ghost"
+                size="icon"
                 onClick={() => fileInputRef.current?.click()}
-                className="bg-white border border-gray-200 text-gray-500 p-4 rounded-2xl flex items-center justify-center hover:bg-gray-50 hover:text-blue-600 transition-all shadow-sm"
-                title="แนบไฟล์รูปภาพหรือ PDF"
+                className="h-12 w-12 rounded-full bg-white border border-gray-100 text-gray-400 hover:text-blue-600 hover:bg-white shadow-sm transition-all shrink-0"
               >
-                📎
-              </button>
+                <Paperclip className="h-5 w-5" />
+              </Button>
+              
               <textarea
                 rows={1}
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="พิมพ์ข้อความที่นี่..."
-                className="flex-1 px-4 py-3 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 resize-none max-h-32 shadow-inner"
+                className="flex-1 bg-transparent px-2 py-3 outline-none resize-none max-h-32 text-sm font-medium"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault()
@@ -262,13 +270,14 @@ export const TicketThread = ({ ticketId }: { ticketId: string }) => {
                   }
                 }}
               />
-              <button
+
+              <Button
                 disabled={sending || (!newMessage.trim() && !attachment)}
                 type="submit"
-                className="bg-blue-600 text-white p-4 rounded-2xl hover:bg-blue-700 disabled:bg-gray-300 transition-all active:scale-90 shadow-lg"
+                className="h-12 w-12 rounded-full bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-200 transition-all shadow-lg shadow-blue-200 shrink-0"
               >
-                <span className="text-xl">{uploadProgress ? '⏳' : '✈️'}</span>
-              </button>
+                {uploadProgress ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+              </Button>
             </div>
           </form>
         </div>

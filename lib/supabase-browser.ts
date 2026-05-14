@@ -1,19 +1,16 @@
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 
 /**
  * Creates a Supabase client for use in Client Components.
+ * This client is configured to use cookies automatically via @supabase/ssr.
  */
 export const createBrowserSupabaseClient = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    // Return a dummy client during build to avoid crashing Next.js SSG
-    return createClient(
-      supabaseUrl || 'http://localhost:3000',
-      supabaseAnonKey || 'dummy-key'
-    )
+    throw new Error('Supabase URL or Anon Key is missing')
   }
 
-  return createClient(supabaseUrl, supabaseAnonKey)
+  return createBrowserClient(supabaseUrl, supabaseAnonKey)
 }

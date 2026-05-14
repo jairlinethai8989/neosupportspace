@@ -37,11 +37,10 @@ export default function LoginPage() {
 
       setMessage({ type: 'success', text: 'เข้าสู่ระบบสำเร็จ กำลังนำท่านไปยังหน้าควบคุม...' })
       
-      // Short delay for visual feedback before redirect
+      // Use window.location.href for a full reload to ensure cookies sync with Middleware
       setTimeout(() => {
-        router.push('/agent')
-        router.refresh()
-      }, 1500)
+        window.location.href = '/agent'
+      }, 1000)
 
     } catch (err: any) {
       setMessage({ type: 'error', text: err.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' })
